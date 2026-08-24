@@ -36,6 +36,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QRunnable, QThreadPool, 
 
 
 from xmidas.utils.utils import *
+from xmidas.utils.utils import get_xrf_data
 from xmidas.utils.color_maps import create_color_maps
 from xmidas.models.encoders import jsonEncoder
 
@@ -360,8 +361,11 @@ class midasWindow(QtWidgets.QMainWindow):
 
             if self.file_name.endswith(".h5"):
                 self.im_stack, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
+
                 self.statusbar_main.showMessage(f"Data from {bl_name}")
-                self.sb_zrange2.setValue(mono_e / 10)
+
+                self.sb_zrange2.setValue(round(mono_e / 10))
+                
                 self.energy = []
 
             elif self.file_name.endswith(".tiff") or self.file_name.endswith(".tif"):
@@ -419,11 +423,26 @@ class midasWindow(QtWidgets.QMainWindow):
         self.file_name = str(filename[0])
         self.user_wd = os.path.dirname(self.file_name)
 
-        # if user decides to cancel the file window gui returns to original state
         if self.file_name:
+            print("BEFORE disconnectImageActions")
+
             self.disconnectImageActions()
+
+            print("AFTER disconnectImageActions")
+
             self.isAReload = False
+
+            print("BEFORE load_stack")
+
             self.load_stack()
+
+            print("AFTER load_stack")
+
+        # if user decides to cancel the file window gui returns to original state
+        # if self.file_name:
+        #     self.disconnectImageActions()
+        #     self.isAReload = False
+        #     self.load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")
